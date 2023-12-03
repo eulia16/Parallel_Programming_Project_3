@@ -13,9 +13,9 @@ public class App
 
 
     //the current state of the alloy
-    public static MetalAlloy[][] wholeAlloy;
+    public static MetalAlloy[][] wholeAlloy, prevAllow;
     //the threads that will be working on the board
-    private static ExecutorService workStealingPool;
+    private static ForkJoinPool forkJoinPool;
     //the previous state of the allow, used for calculating the temperatures
     public static MetalAlloy[][] previousStateOfAlloy;
 
@@ -34,12 +34,12 @@ public class App
          */
 
         //work stealing pool to share the work among many threads
-        App.workStealingPool =  Executors.newWorkStealingPool();
+        App.forkJoinPool =  new ForkJoinPool();
 
-
-        int numRows= 33 * 2 , numColumns=numRows * 4;
-        CountDownLatch countDownLatch = new CountDownLatch(numRows * numColumns);
+        int numRows= 66 , numColumns=numRows * 4;
+        CountDownLatch countDownLatch = new CountDownLatch(numRows * numColumns +1);
         System.out.println("countdown latch: " + countDownLatch.getCount());
+        Thread.sleep(1000);
 
 
         wholeAlloy = new MetalAlloy[numColumns][numRows];
@@ -51,10 +51,16 @@ public class App
             }
         }
         //wait for this to be done, then move on to other cool stuff
+        System.out.println("countdown latch: " + countDownLatch.getCount());
+
+        countDownLatch.countDown();
+        Thread.sleep(1000);
+
         countDownLatch.await();
 
-        System.out.println("countdown latch: " + countDownLatch.getCount());
+
         GUI gui = new GUI();
+
 
 
 
@@ -69,7 +75,6 @@ public class App
         });
 
 
-        int counter=0;
 
 
         /*
@@ -79,6 +84,7 @@ public class App
 
 
         */
+
         final Phaser phaser = new Phaser(){
 
             //remember its essentially single threaded in here, do any otherwise unpredictable multithreaded behavior
@@ -88,7 +94,14 @@ public class App
 
 
                 System.out.println("Time to fuck some shit up recursively and parallely(i know thats not a work...i think)");
+                try {
+                    Thread.sleep(3000);
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
 
+
+                gui.repaint();
 
                 System.out.println("Phase/Generation: " + phase);
                 return phase >= Constants.numGenerations || registeredParties == 0;
@@ -99,9 +112,45 @@ public class App
         phaser.register();
 
 
+        do{
+            MetalAlloy[][] returnedAlloy =  performTemperatureUpdate(App.wholeAlloy);
+            System.out.println("method returned");
+            phaser.arriveAndAwaitAdvance();
+        }
+        while(!phaser.isTerminated());
 
 
-
+        phaser.arriveAndDeregister();
 
     }
+
+
+
+
+    private static MetalAlloy[][] performTemperatureUpdate(MetalAlloy[][] alloyToBeChanged) throws InterruptedException {
+
+        System.out.println("Inside performTemperatureUpdate function");
+        Thread.sleep(3000);
+
+
+        //i think this is correct
+        MetalAlloy[][] newBoard = new MetalAlloy[alloyToBeChanged.length][alloyToBeChanged[0].length];
+        UpdateAlloyTemperature updateAlloyTemperature = new UpdateAlloyTemperature(alloyToBeChanged, newBoard);
+
+        App.previousStateOfAlloy = alloyToBeChanged.clone();
+
+
+        forkJoinPool = new ForkJoinPool();
+
+        long startTime = System.currentTimeMillis();
+        forkJoinPool.invoke(updateAlloyTemperature);
+        long endTime = System.currentTimeMillis();
+        System.out.println("changing the temp time: " + (endTime - startTime) +
+                " milliseconds");
+
+
+        return newBoard;
+    }
+
+
 }

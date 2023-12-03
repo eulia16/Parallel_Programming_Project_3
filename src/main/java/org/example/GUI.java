@@ -67,7 +67,7 @@ public class GUI extends JPanel {
                 g2.setColor(averagedColor); // You can set your desired color
 
                 g2.fillRect(x + padding, y + padding, squareSize, squareSize);
-                g2.setColor(Color.BLACK);
+                // g2.setColor(Color.BLACK);
 //                if(floorToDraw[i][j].getStation().getColor() == Color.BLACK)
 //                    g2.setColor(Color.WHITE);
 //                g2.drawString("(" + x + "," + y + ")", x + padding, y + padding + moveTextDownPixels);
