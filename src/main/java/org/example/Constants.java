@@ -22,6 +22,8 @@ public final class Constants {
 
     public static final int numGenerations = 100_000;
 
+    public static final int numProcessors = Runtime.getRuntime().availableProcessors();
+
 
 
 }

@@ -89,10 +89,16 @@ public class App
 
                 System.out.println("Time to fuck some shit up recursively and parallely(i know thats not a work...i think)");
 
+
+                System.out.println("Phase/Generation: " + phase);
                 return phase >= Constants.numGenerations || registeredParties == 0;
 
             }
         };
+
+        phaser.register();
+
+
 
 
 
