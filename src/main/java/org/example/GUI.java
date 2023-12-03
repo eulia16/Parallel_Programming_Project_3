@@ -6,7 +6,7 @@ import java.util.Random;
 
 public class GUI extends JPanel {
     private final static int gridSize = 10;
-    private final static int squareSize = 10;
+    private final static int squareSize = 5;
 
     private final static int moveTextDownPixels = 25;
     private static int space;
@@ -27,7 +27,7 @@ public class GUI extends JPanel {
     @Override
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
-        int squareSize = this.squareSize;
+        int squareSize = GUI.squareSize;
         int padding = 20, fontSize = 9;
         Graphics2D g2 = (Graphics2D) g;
 
@@ -42,24 +42,23 @@ public class GUI extends JPanel {
                 int x = i * squareSize + padding;
                 int y = j * squareSize + padding;
                 //get originalRBG colors from the respective metal
-                Color mixtureOfColors;
                 double r=0, b=0, green=0;
-                r += (floorToDraw[i][j].getPercentageOfCopper() * MetalType.Copper.getColor().getRed()) /100;
-                r += (floorToDraw[i][j].getPercentageOfSilver() * MetalType.Silver.getColor().getRed()) /100;
-                r += (floorToDraw[i][j].getPercentageOfGold() * MetalType.Gold.getColor().getRed()) / 100;
-                r /= 3;
+                r += (floorToDraw[i][j].getPercentageOfCopper() * MetalType.Copper.getColor().getRed()) /100.0;
+                r += (floorToDraw[i][j].getPercentageOfSilver() * MetalType.Silver.getColor().getRed()) /100.0;
+                r += (floorToDraw[i][j].getPercentageOfGold() * MetalType.Gold.getColor().getRed()) / 100.0;
+                r /= 3.0;
                 System.out.println("red: " + r);
 
-                b += (floorToDraw[i][j].getPercentageOfCopper() * MetalType.Copper.getColor().getBlue()) / 100;
-                b += (floorToDraw[i][j].getPercentageOfSilver() * MetalType.Silver.getColor().getBlue()) / 100;
-                b += (floorToDraw[i][j].getPercentageOfGold() * MetalType.Gold.getColor().getBlue()) / 100;
-                b /= 3;
+                b += (floorToDraw[i][j].getPercentageOfCopper() * MetalType.Copper.getColor().getBlue()) / 100.0;
+                b += (floorToDraw[i][j].getPercentageOfSilver() * MetalType.Silver.getColor().getBlue()) / 100.0;
+                b += (floorToDraw[i][j].getPercentageOfGold() * MetalType.Gold.getColor().getBlue()) / 100.0;
+                b /= 3.0;
                 System.out.println("blue: " + b);
 
-                green += (floorToDraw[i][j].getPercentageOfCopper() * MetalType.Copper.getColor().getGreen()) / 100;
-                green += (floorToDraw[i][j].getPercentageOfSilver() * MetalType.Silver.getColor().getGreen()) / 100;
-                green += (floorToDraw[i][j].getPercentageOfGold() * MetalType.Gold.getColor().getGreen()) / 100;
-                green /= 3;
+                green += (floorToDraw[i][j].getPercentageOfCopper() * MetalType.Copper.getColor().getGreen()) / 100.0;
+                green += (floorToDraw[i][j].getPercentageOfSilver() * MetalType.Silver.getColor().getGreen()) / 100.0;
+                green += (floorToDraw[i][j].getPercentageOfGold() * MetalType.Gold.getColor().getGreen()) / 100.0;
+                green /= 3.0;
                 System.out.println("green: " + green);
 
                 Color averagedColor = new Color((int)r, (int)green, (int)b);

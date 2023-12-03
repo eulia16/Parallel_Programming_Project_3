@@ -9,6 +9,7 @@ import java.util.Set;
 public final class Formula {
 
 
+    //I think the division is in the correct place but check/ensure later!!!!
     public static double calculate(ArrayList<MetalAlloy> neighbors){
         //for each metal that is inside the calculation
         double newTemperature =0;
@@ -24,7 +25,7 @@ public final class Formula {
                     innerSummation += (neighbor.getCurrentTemperature() * neighbor.getArrayOfPercentagesOfMetal().get(i));
                 }
                 //get the thermal constant for each respective metal and mult it to the sum of the loop above
-                thermalConstantTimeLoop += innerSummation;
+                thermalConstantTimeLoop += innerSummation / (double) MetalType.values().length;;
             }
 
             newTemperature += thermalConstantTimeLoop;

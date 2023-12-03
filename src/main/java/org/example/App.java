@@ -2,9 +2,7 @@ package org.example;
 
 import javax.swing.*;
 import java.awt.*;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.CyclicBarrier;
-import java.util.concurrent.Phaser;
+import java.util.concurrent.*;
 
 /**
  * Hello world!
@@ -14,6 +12,7 @@ public class App
 {
 
     public static MetalAlloy[][] wholeAlloy;
+    private static ExecutorService workStealingPool;
 
     public static void main( String[] args ) throws InterruptedException {
         /**
@@ -29,15 +28,19 @@ public class App
          * workloads. More to come...
          */
 
-        CountDownLatch countDownLatch = new CountDownLatch(100 * 100);
+        //work stealing pool to share the work among many threads
+        App.workStealingPool =  Executors.newWorkStealingPool();
+
+
+        int numRows=33 * 2 , numColumns=numRows * 4;
+        CountDownLatch countDownLatch = new CountDownLatch(numRows * numColumns);
         System.out.println("countdown latch: " + countDownLatch.getCount());
 
 
-        wholeAlloy = new MetalAlloy[100][100];
-        System.out.println(wholeAlloy.length);
-        System.out.println(wholeAlloy[0].length);
-        for(int i=0; i< wholeAlloy.length; ++i){
-            for(int j=0; j< wholeAlloy[0].length; ++j){
+        wholeAlloy = new MetalAlloy[numColumns][numRows];
+
+        for(int i=0; i< numColumns; ++i){
+            for(int j=0; j< numRows; ++j){
                 wholeAlloy[i][j] = new MetalAlloy(i, j);
                 countDownLatch.countDown();
             }
@@ -52,34 +55,26 @@ public class App
 
         SwingUtilities.invokeLater(() -> {
             JFrame frame = new JFrame("Optimized Floor Plan");
-            frame.setSize(new Dimension(Constants.alloyWidth, Constants.alloyHeight));
+            frame.setSize(new Dimension(Constants.alloyWidth + 200, Constants.alloyHeight + 600));
             frame.setResizable(true);
             frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
             frame.getContentPane().setBackground(new Color(255, 255, 255));
             frame.add(gui);
             frame.setVisible(true);
-            //
         });
 
 
         int counter=0;
-      for(;;){
-          counter++;
 
-          if(counter % 1000 == 0){
-              gui.repaint();
-          }
-          for(int i=0; i< 100; ++i){
-              for(int j=0; j<100; ++i){
-                  wholeAlloy[i][j].
-              }
-          }
-      }
+
+        /*
+        we now are inside  the main logic of the program, we need a class that implements a recursive action
+        based on 'chunks' or
 
 
 
-
-        //Phaser phaser = new Phaser();
+        */
+        Phaser phaser = new Phaser();
 
 
 

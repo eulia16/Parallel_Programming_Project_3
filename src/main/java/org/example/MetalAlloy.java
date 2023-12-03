@@ -27,13 +27,13 @@ public class MetalAlloy {
                     this.percentageOfCopper = ThreadLocalRandom.current().nextInt(100 - noise);
                     totalPercentage +=this.percentageOfCopper;
                     this.metalTypes.put(MetalType.Copper, this.percentageOfCopper);
-                    System.out.println("Percentage of copper in metal: " + this.percentageOfCopper);
+                     //System.out.println("Percentage of copper in metal: " + this.percentageOfCopper);
                         break;
                 case Silver:
                     this.percentageOfSilver = ThreadLocalRandom.current().nextInt(100 - (this.percentageOfCopper + noise) );
                     this.metalTypes.put(MetalType.Silver, this.percentageOfSilver);
                     totalPercentage +=this.percentageOfSilver;
-                    System.out.println("Percentage of silver in metal: " + this.percentageOfSilver);
+                     //System.out.println("Percentage of silver in metal: " + this.percentageOfSilver);
                         break;
                 case Gold:
                     if(totalPercentage >= 75){
@@ -44,7 +44,7 @@ public class MetalAlloy {
                     }
                     this.percentageOfGold = ThreadLocalRandom.current().nextInt(totalPercentage,100 - (this.percentageOfCopper + this.percentageOfSilver+ noise) );
                     this.metalTypes.put(MetalType.Gold, this.percentageOfGold);
-                    System.out.println("Percentage of gold in metal: " + this.percentageOfGold);
+                     //System.out.println("Percentage of gold in metal: " + this.percentageOfGold);
                         break;
 
             }
