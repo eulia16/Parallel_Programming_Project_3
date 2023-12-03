@@ -11,8 +11,13 @@ import java.util.concurrent.*;
 public class App 
 {
 
+
+    //the current state of the alloy
     public static MetalAlloy[][] wholeAlloy;
+    //the threads that will be working on the board
     private static ExecutorService workStealingPool;
+    //the previous state of the allow, used for calculating the temperatures
+    public static MetalAlloy[][] previousStateOfAlloy;
 
     public static void main( String[] args ) throws InterruptedException {
         /**
@@ -32,7 +37,7 @@ public class App
         App.workStealingPool =  Executors.newWorkStealingPool();
 
 
-        int numRows=33 * 2 , numColumns=numRows * 4;
+        int numRows= 33 * 2 , numColumns=numRows * 4;
         CountDownLatch countDownLatch = new CountDownLatch(numRows * numColumns);
         System.out.println("countdown latch: " + countDownLatch.getCount());
 
@@ -74,7 +79,20 @@ public class App
 
 
         */
-        Phaser phaser = new Phaser();
+        final Phaser phaser = new Phaser(){
+
+            //remember its essentially single threaded in here, do any otherwise unpredictable multithreaded behavior
+            //inside here (s/a changing the current floor to the previous floor and print statements etc...)
+            @Override
+            protected boolean onAdvance(int phase, int registeredParties) {
+
+
+                System.out.println("Time to fuck some shit up recursively and parallely(i know thats not a work...i think)");
+
+                return phase >= Constants.numGenerations || registeredParties == 0;
+
+            }
+        };
 
 
 

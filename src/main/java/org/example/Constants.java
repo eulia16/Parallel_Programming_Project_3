@@ -20,6 +20,8 @@ public final class Constants {
     public static final int alloyHeight = 400;
     public static final int alloyWidth = alloyHeight * 4;
 
+    public static final int numGenerations = 100_000;
+
 
 
 }
