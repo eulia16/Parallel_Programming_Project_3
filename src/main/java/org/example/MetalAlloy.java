@@ -12,10 +12,19 @@ public class MetalAlloy {
     private int percentageOfGold, percentageOfSilver, percentageOfCopper;
     private double currentTemperature = -1;
 
+    private ArrayList<MetalAlloy> neighbors;
+
+    private boolean isHeatedCorner=false, isEdge=false;
+
 
     //used to initialize a metal alloy that consists of 3 randomly assigned percentages, with some noise as well
-    public MetalAlloy(int i, int j){
+    public MetalAlloy(int i, int j, boolean isHeatedCorner, boolean isEdge){
+
+        this.isHeatedCorner = isHeatedCorner;
+        //used to determine if it is on the outside of the rectangle
+        this.isEdge = isEdge;
         //first calculate the noise
+
         int noise = ThreadLocalRandom.current().nextInt(Constants.levelOfNoise);
         this.metalTypes = new LinkedHashMap<>();
         System.out.println("Percentage of noise in metal: " + noise);
@@ -78,6 +87,14 @@ public class MetalAlloy {
        return temp;
     }
 
+    public ArrayList<MetalAlloy> getNeighbors() {
+        return neighbors;
+    }
+
+    public void setNeighbors(ArrayList<MetalAlloy> neighbors) {
+        this.neighbors = neighbors;
+    }
+
     public int getPercentageOfCopper() {
         return percentageOfCopper;
     }
@@ -95,6 +112,44 @@ public class MetalAlloy {
     //needs to be synchronized in case more than one thread tries to access it at the same time
     public synchronized double getCurrentTemperature(){
         return this.currentTemperature;
+    }
+
+    public double calculate(double[][] temperatures){
+        //for each metal that is inside the calculation
+        double newTemperature =0;
+
+        if(isHeatedCorner)
+            return this.currentTemperature;
+
+
+
+            //for each metal inside the alloy
+            double thermalConstantTimeLoop=0.0;
+
+            for (int i = 0; i < MetalType.values().length; ++i) {
+                //get respective thermal constant for neighbors metal
+                double innerSummation = 0.0;
+                for(MetalAlloy neighbor : neighbors){
+                    innerSummation += (temperatures[neighbor.getPosition().getXCoord()][neighbor.getPosition().getYCoord()]
+                            * (neighbor.getArrayOfPercentagesOfMetal().get(i) / 100.0));
+                }
+                thermalConstantTimeLoop += MetalType.values()[i].getThermalConstant() * innerSummation;
+
+
+            }
+            System.out.println("Newly calculated temp: " + thermalConstantTimeLoop / neighbors.size());
+
+            newTemperature = thermalConstantTimeLoop / neighbors.size();
+
+            this.setCurrentTemperature(newTemperature);
+
+
+
+
+
+
+
+        return newTemperature;
     }
 
 

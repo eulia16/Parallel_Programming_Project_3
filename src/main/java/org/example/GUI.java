@@ -37,31 +37,31 @@ public class GUI extends JPanel {
 
         MetalAlloy[][] floorToDraw = App.wholeAlloy;
         //Station[][] floorToDraw = App.bestEverFloor;
-        for(int i =0; i < floorToDraw.length; ++i){
-            for (int j = 0; j< floorToDraw[0].length; ++j){
+        for(int i =0; i < floorToDraw.length-1; ++i){
+            for (int j = 0; j< floorToDraw[0].length-1; ++j){
                 int x = i * squareSize + padding;
                 int y = j * squareSize + padding;
                 //get originalRBG colors from the respective metal
                 double r=0, b=0, green=0;
-                r += (floorToDraw[i][j].getPercentageOfCopper() * MetalType.Copper.getColor().getRed()) /100.0;
-                r += (floorToDraw[i][j].getPercentageOfSilver() * MetalType.Silver.getColor().getRed()) /100.0;
-                r += (floorToDraw[i][j].getPercentageOfGold() * MetalType.Gold.getColor().getRed()) / 100.0;
-                r /= 3.0;
-                System.out.println("red: " + r);
+//                r += (floorToDraw[i][j].getPercentageOfCopper() * MetalType.Copper.getColor().getRed()) /100.0;
+//                r += (floorToDraw[i][j].getPercentageOfSilver() * MetalType.Silver.getColor().getRed()) /100.0;
+//                r += (floorToDraw[i][j].getPercentageOfGold() * MetalType.Gold.getColor().getRed()) / 100.0;
+//                r /= 3.0;
+//                System.out.println("red: " + r);
 
-                b += (floorToDraw[i][j].getPercentageOfCopper() * MetalType.Copper.getColor().getBlue()) / 100.0;
-                b += (floorToDraw[i][j].getPercentageOfSilver() * MetalType.Silver.getColor().getBlue()) / 100.0;
-                b += (floorToDraw[i][j].getPercentageOfGold() * MetalType.Gold.getColor().getBlue()) / 100.0;
-                b /= 3.0;
-                System.out.println("blue: " + b);
 
-                green += (floorToDraw[i][j].getPercentageOfCopper() * MetalType.Copper.getColor().getGreen()) / 100.0;
-                green += (floorToDraw[i][j].getPercentageOfSilver() * MetalType.Silver.getColor().getGreen()) / 100.0;
-                green += (floorToDraw[i][j].getPercentageOfGold() * MetalType.Gold.getColor().getGreen()) / 100.0;
-                green /= 3.0;
-                System.out.println("green: " + green);
+//                   r += (floorToDraw[i][j].getPercentageOfCopper() / 100.0) * floorToDraw[i][j].getCurrentTemperature();
+//                   r += (floorToDraw[i][j].getPercentageOfSilver() / 100.0) * floorToDraw[i][j].getCurrentTemperature();
+                   r += floorToDraw[i][j].getCurrentTemperature();//(floorToDraw[i][j].getPercentageOfGold() / 100.0) * floorToDraw[i][j].getCurrentTemperature();
+                   b = 255 - r;
+                    //System.out.println("red: " + r + ", blue: " + b );
 
-                Color averagedColor = new Color((int)r, (int)green, (int)b);
+
+
+
+                green = 0;
+
+                Color averagedColor = new Color((int)r, 0, (int)b);
 
                 //start actually presenting the data of the best factory floor
                 g2.setColor(averagedColor); // You can set your desired color

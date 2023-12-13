@@ -24,6 +24,8 @@ public final class Constants {
 
     public static final int numProcessors = Runtime.getRuntime().availableProcessors();
 
+    public static final int sizeThreshold = 3;
+
 
 
 }

@@ -1,0 +1,8 @@
+next things to do:
+
+
+1)
+add a final field that has each section of the alloys neighbors(atleast the coordinates)
+so when we are computing each sections new temperatures, we dont need to keep track of the
+neighbors/worry about weird indexing errors,
+
