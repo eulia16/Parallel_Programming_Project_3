@@ -6,7 +6,10 @@ import java.util.Random;
 
 public class GUI extends JPanel {
     private final static int gridSize = 10;
-    private final static int squareSize = 5;
+    //what we want
+    //private final static int squareSize = 5;
+    private final static int squareSize = 15 * 4;
+
 
     private final static int moveTextDownPixels = 25;
     private static int space;
@@ -37,24 +40,19 @@ public class GUI extends JPanel {
 
         MetalAlloy[][] floorToDraw = App.wholeAlloy;
         //Station[][] floorToDraw = App.bestEverFloor;
-        for(int i =0; i < floorToDraw.length-1; ++i){
-            for (int j = 0; j< floorToDraw[0].length-1; ++j){
+        for(int i =0; i < floorToDraw.length; ++i){
+            for (int j = 0; j< floorToDraw[0].length; ++j){
                 int x = i * squareSize + padding;
                 int y = j * squareSize + padding;
                 //get originalRBG colors from the respective metal
                 double r=0, b=0, green=0;
-//                r += (floorToDraw[i][j].getPercentageOfCopper() * MetalType.Copper.getColor().getRed()) /100.0;
-//                r += (floorToDraw[i][j].getPercentageOfSilver() * MetalType.Silver.getColor().getRed()) /100.0;
-//                r += (floorToDraw[i][j].getPercentageOfGold() * MetalType.Gold.getColor().getRed()) / 100.0;
-//                r /= 3.0;
-//                System.out.println("red: " + r);
 
-
-//                   r += (floorToDraw[i][j].getPercentageOfCopper() / 100.0) * floorToDraw[i][j].getCurrentTemperature();
-//                   r += (floorToDraw[i][j].getPercentageOfSilver() / 100.0) * floorToDraw[i][j].getCurrentTemperature();
-                   r += floorToDraw[i][j].getCurrentTemperature();//(floorToDraw[i][j].getPercentageOfGold() / 100.0) * floorToDraw[i][j].getCurrentTemperature();
+                   double hmm = floorToDraw[i][j].getCurrentTemperature();
+                   if(hmm > 255)
+                       hmm = 255;
+                   r = hmm;
                    b = 255 - r;
-                    //System.out.println("red: " + r + ", blue: " + b );
+
 
 
 
@@ -70,7 +68,10 @@ public class GUI extends JPanel {
                 // g2.setColor(Color.BLACK);
 //                if(floorToDraw[i][j].getStation().getColor() == Color.BLACK)
 //                    g2.setColor(Color.WHITE);
-//                g2.drawString("(" + x + "," + y + ")", x + padding, y + padding + moveTextDownPixels);
+                g2.setColor(Color.BLACK);
+                Double temp = floorToDraw[i][j].getCurrentTemperature();
+                temp = (double) (Math.round(temp * 100) / 100);
+                g2.drawString("" + temp, x + padding + 15, y + padding + 15);
 //                g2.drawString(floorToDraw[i][j].getStation().getStationType(floorToDraw[i][j].getStation()), x + padding, y + padding + moveTextDownPixels + moveTextDownPixels);
 
 

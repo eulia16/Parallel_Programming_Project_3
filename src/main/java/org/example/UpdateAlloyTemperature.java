@@ -23,7 +23,7 @@ public class UpdateAlloyTemperature extends RecursiveAction {
     //neighbors in the calculation
     @Override
     protected void compute() {
-        System.out.println("inside compute method");
+
         boolean splitDownMiddle = (this.verticalHigh - this.verticalLow ) > 2;
         boolean splitInHalf = (this.horizontalHigh - this.horizontalLow ) > 2;
 
@@ -32,7 +32,7 @@ public class UpdateAlloyTemperature extends RecursiveAction {
         if(splitDownMiddle){
 
             int middle = (this.verticalHigh + this.verticalLow ) / 2;
-            System.out.println("split down middle: , middleL " + middle);
+
 
             UpdateAlloyTemperature left = new UpdateAlloyTemperature(this.currentBoard, this.temperatures, this.verticalLow, middle, this.horizontalLow, this.horizontalHigh);
             UpdateAlloyTemperature right = new UpdateAlloyTemperature(this.currentBoard, this.temperatures, middle, this.verticalHigh, this.horizontalLow, this.horizontalHigh);
@@ -42,7 +42,7 @@ public class UpdateAlloyTemperature extends RecursiveAction {
         }//same for if not big enough down the middle
         if(splitInHalf){
             int middle = (this.horizontalHigh + this.horizontalLow ) / 2;
-            System.out.println("split in half: , middle: " + middle);
+
             UpdateAlloyTemperature left = new UpdateAlloyTemperature(this.currentBoard, this.temperatures, this.verticalLow, this.verticalHigh, this.horizontalLow, middle);
             UpdateAlloyTemperature right = new UpdateAlloyTemperature(this.currentBoard, this.temperatures, this.verticalLow, this.verticalHigh, middle, this.horizontalHigh);
 

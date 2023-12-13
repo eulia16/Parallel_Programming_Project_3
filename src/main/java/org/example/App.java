@@ -16,7 +16,11 @@ public class App
     //the current state of the alloy
     public static MetalAlloy[][] wholeAlloy, prevAllow;
 
-    private static int numRows= 66 , numColumns=numRows * 4;
+    //what we want
+    //private static int numRows= 66 , numColumns=numRows * 4;
+
+    private static int numRows= 5 , numColumns=numRows * 4;
+
     //the threads that will be working on the board
     private static ForkJoinPool forkJoinPool;
     //the previous state of the allow, used for calculating the temperatures
@@ -70,10 +74,10 @@ public class App
                     //not a corner peice but on the outside
                     if (!isHeatedCorner && (i == 0 || j == 0 || j == numRows - 1 || i == numColumns - 1)) {
                         wholeAlloy[i][j] = new MetalAlloy(i, j, false, true);
-                        wholeAlloy[i][j].setCurrentTemperature(ThreadLocalRandom.current().nextDouble(40));
+                        wholeAlloy[i][j].setCurrentTemperature(ThreadLocalRandom.current().nextDouble(60));
                     } else {
                         wholeAlloy[i][j] = new MetalAlloy(i, j, false, false);
-                        wholeAlloy[i][j].setCurrentTemperature(ThreadLocalRandom.current().nextDouble(40));
+                        wholeAlloy[i][j].setCurrentTemperature(ThreadLocalRandom.current().nextDouble(60));
                     }
                     countDownLatch.countDown();
                 }
@@ -88,21 +92,10 @@ public class App
 
         setNeighbors(wholeAlloy);
 
-        for(int i=0; i<numColumns; ++i){
-            for(int j=0; j<numRows; ++j){
-                for(MetalAlloy m : wholeAlloy[i][j].getNeighbors()){
-                    if(m.getPosition().getXCoord() < 0 || m.getPosition().getYCoord() < 0 || m.getPosition().getXCoord() > numColumns || m.getPosition().getYCoord() > numRows){
-                        System.out.printf("FUCK");
-                        System.exit(0);
-                    }
-                    System.out.println("x coord: " + m.getPosition().getXCoord() + ", y coord: " + m.getPosition().getYCoord() );
-                }
-                System.out.println("");
-            }
-        }
-
         //wait for this to be done, then move on to other cool stuff
         System.out.println("countdown latch: " + countDownLatch.getCount());
+
+        //Thread.sleep(100000);
 
         //forkJoinPool = new ForkJoinPool();
         forkJoinPool = ForkJoinPool.commonPool();
@@ -126,6 +119,19 @@ public class App
         countDownLatch.countDown();
 
 
+//        for(int i=0; i<wholeAlloy.length;++i){
+//            for(int j=0; j<wholeAlloy[0].length; ++j){
+//                for(MetalAlloy m : wholeAlloy[i][j].getNeighbors()){
+//                    if(m.getPosition().getXCoord() ==0 && m.getPosition().getYCoord() ==0)
+//                        System.out.println("top left corner is neighbor");
+//                    if(m.getPosition().getXCoord() ==wholeAlloy.length-1 && m.getPosition().getYCoord() ==wholeAlloy[0].length -1)
+//                        System.out.println("bottom right corner is neighbor");
+//                }
+//            }
+//        }
+//
+//
+//        Thread.sleep(1000000000);
         countDownLatch.countDown();
 
         countDownLatch.await();
@@ -151,12 +157,21 @@ public class App
 
                 System.out.println("Time to fuck some shit up recursively and parallely(i know thats not a word...i think)");
 
-                gui.repaint();
+
+                System.out.println("New values: " );
+                for(int i=0; i<wholeAlloy.length; ++i){
+                    for(int j=0; j< wholeAlloy[0].length; ++j){
+                        System.out.println("temp: " + wholeAlloy[i][j].getCurrentTemperature());
+                    }
+                }
                 try {
                     Thread.sleep(1000);
                 } catch (InterruptedException e) {
                     throw new RuntimeException(e);
                 }
+
+                gui.repaint();
+
 
                 System.out.println("Phase/Generation: " + phase);
                 return phase >= Constants.numGenerations || registeredParties == 0;
@@ -171,33 +186,6 @@ public class App
 
             performTemperatureUpdate(App.wholeAlloy);
 
-//
-//            //just to see some temperature changes/testing
-//            for(int i=0; i< numColumns; ++i){
-//                for(int j=0; j< numRows; ++j){
-//                    if(i ==0 && j == 0 || i == numColumns -1 && j == numRows -1) {
-//                        //top left
-//                        if(i ==0 && j ==0){}
-//                            //wholeAlloy[i][j].setCurrentTemperature(Constants.S);
-//                            //bottom right
-//                        else {
-//                            //wholeAlloy[i][j].setCurrentTemperature(Constants.T);
-//                            break;
-//                        }
-//                    }
-//
-//                    else {
-//                        if(i+j >255)
-//                            wholeAlloy[i][j].setCurrentTemperature(255);
-//                        else
-//                            wholeAlloy[i][j].setCurrentTemperature(i+j);//ThreadLocalRandom.current().nextDouble(255));
-//                    }
-//                }
-//            }
-
-
-
-            System.out.println("method returned");
             phaser.arriveAndAwaitAdvance();
         }
         while(!phaser.isTerminated());
@@ -244,27 +232,14 @@ public class App
         for(int i=0; i < numColumns; ++i) {
             for (int j = 0; j < numRows; ++j) {
                 neighbors = new ArrayList<>();
-                final boolean isHeatedCorner = (i == 0 && j == 0) || (i == numColumns - 1 && j == numRows - 1);
 
-                if (isHeatedCorner) {
-                    //top left
-                    if (i == 0 && j == 0) {
-                        neighbors.add(wholeAlloy[i + 1][j]);//one to the right
-                        neighbors.add(wholeAlloy[i][j + 1]);//one below
-                        neighbors.add(wholeAlloy[i + 1][j + 1]);//one in the center-ish
-                        wholeAlloy[i][j].setNeighbors(neighbors);
-                    }
-                    //bottom right
-                    else {
-                        neighbors.add(wholeAlloy[i - 1][j]);//one to the left
-                        neighbors.add(wholeAlloy[i][j - 1]);//one above
-                        neighbors.add(wholeAlloy[i - 1][j - 1]);//one in the center-ish
-                        wholeAlloy[i][j].setNeighbors(neighbors);
-                    }
+                   if(i == 1 && j ==1 ){
+                       neighbors.add(wholeAlloy[0][0]);
+                   }
+                   if(i == numColumns -2 && j == numRows -2){
+                       neighbors.add(wholeAlloy[numColumns -1][numRows -1]);
+                   }
 
-
-                }
-                else {
                     if (i > 0) {
                         // Add the cell above the current cell
                         neighbors.add(wholeAlloy[i - 1][j]);
@@ -289,7 +264,6 @@ public class App
                 }
 
 
-            }
         }
 
     }
