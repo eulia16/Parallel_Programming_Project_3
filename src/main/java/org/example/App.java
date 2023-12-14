@@ -15,11 +15,13 @@ public class App
 
     //the current state of the alloy
     public static MetalAlloy[][] wholeAlloy, prevAllow;
+    private static double[][] previousTemperatures;
 
     //what we want
     //private static int numRows= 66 , numColumns=numRows * 4;
 
-    private static int numRows= 5 , numColumns=numRows * 4;
+    //orig numrows = 17
+    private static int numRows= 66 , numColumns=numRows * 4;
 
     //the threads that will be working on the board
     private static ForkJoinPool forkJoinPool;
@@ -51,6 +53,7 @@ public class App
 
 
         wholeAlloy = new MetalAlloy[numColumns][numRows];
+        previousTemperatures = new double[numColumns][numRows];
 
         for(int i=0; i < numColumns; ++i){
             for(int j=0; j < numRows; ++j){
@@ -74,13 +77,14 @@ public class App
                     //not a corner peice but on the outside
                     if (!isHeatedCorner && (i == 0 || j == 0 || j == numRows - 1 || i == numColumns - 1)) {
                         wholeAlloy[i][j] = new MetalAlloy(i, j, false, true);
-                        wholeAlloy[i][j].setCurrentTemperature(ThreadLocalRandom.current().nextDouble(60));
+                        wholeAlloy[i][j].setCurrentTemperature(0);//ThreadLocalRandom.current().nextDouble(1));
                     } else {
                         wholeAlloy[i][j] = new MetalAlloy(i, j, false, false);
-                        wholeAlloy[i][j].setCurrentTemperature(ThreadLocalRandom.current().nextDouble(60));
+                        wholeAlloy[i][j].setCurrentTemperature(0);//ThreadLocalRandom.current().nextDouble(1));
                     }
                     countDownLatch.countDown();
                 }
+                previousTemperatures[i][j] = 0.0;
             }
         }
 
@@ -107,7 +111,7 @@ public class App
 
 
         SwingUtilities.invokeLater(() -> {
-            JFrame frame = new JFrame("Optimized Floor Plan");
+            JFrame frame = new JFrame("Heat Propogation GUI");
             frame.setSize(new Dimension(Constants.alloyWidth + 200, Constants.alloyHeight + 600));
             frame.setResizable(true);
             frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -155,17 +159,25 @@ public class App
             protected boolean onAdvance(int phase, int registeredParties) {
 
 
-                System.out.println("Time to fuck some shit up recursively and parallely(i know thats not a word...i think)");
+                //System.out.println("Time to fuck some shit up recursively and parallely(i know thats not a word...i think)");
+
+                //check convergence
+
+//                if(phase > 10 && converged()){
+//                    System.out.println("System has converged");
+//                    System.exit(0);
+//                }
 
 
-                System.out.println("New values: " );
-                for(int i=0; i<wholeAlloy.length; ++i){
-                    for(int j=0; j< wholeAlloy[0].length; ++j){
-                        System.out.println("temp: " + wholeAlloy[i][j].getCurrentTemperature());
-                    }
-                }
+//                System.out.println("New values: " );
+//                for(int i=0; i<wholeAlloy.length; ++i){
+//                    for(int j=0; j< wholeAlloy[0].length; ++j){
+//                        System.out.println("temp: " + wholeAlloy[i][j].getCurrentTemperature());
+//                    }
+//                }
+
                 try {
-                    Thread.sleep(1000);
+                    Thread.sleep(500);
                 } catch (InterruptedException e) {
                     throw new RuntimeException(e);
                 }
@@ -200,25 +212,13 @@ public class App
 
     private static MetalAlloy[][] performTemperatureUpdate(MetalAlloy[][] alloyToBeChanged) throws InterruptedException {
 
-        System.out.println("Inside performTemperatureUpdate function");
-
-        //i think this is correct
-          //MetalAlloy[][] newBoard = new MetalAlloy[alloyToBeChanged.length][alloyToBeChanged[0].length];
-        double[][] previousTemperatures = fillTemperatures(alloyToBeChanged);
-
+        double[][] prev = fillTemperatures(alloyToBeChanged);
+        previousTemperatures = prev;
 
         UpdateAlloyTemperature updateAlloyTemperature = new UpdateAlloyTemperature(
-                alloyToBeChanged, previousTemperatures, 0, alloyToBeChanged.length, 0, alloyToBeChanged[0].length);
-
-
-
-        long startTime = System.currentTimeMillis();
+                alloyToBeChanged, prev, 0, alloyToBeChanged.length, 0, alloyToBeChanged[0].length);
 
         forkJoinPool.invoke(updateAlloyTemperature);
-
-        long endTime = System.currentTimeMillis();
-        System.out.println("changing the temp time: " + (endTime - startTime) +
-                " milliseconds");
 
 
         return alloyToBeChanged;
@@ -266,6 +266,23 @@ public class App
 
         }
 
+    }
+
+    public static boolean converged(){
+        int numMeetsThreshold=0;
+        for(int i =0; i< wholeAlloy.length; ++i){
+            for(int j=0; j< wholeAlloy[0].length; ++j){
+                if((wholeAlloy[i][j].getCurrentTemperature() - previousTemperatures[i][j]) < Constants.THRESHOLD)
+                    numMeetsThreshold++;
+            }
+        }
+        //if over 90 perfent of the metal allow is very close to the same temp, end the simulation
+        if(numMeetsThreshold > (wholeAlloy.length * wholeAlloy[0].length) -1){
+            return true;
+        }
+        else {
+            return false;
+        }
     }
 
     public static double[][] fillTemperatures(MetalAlloy[][] blah){

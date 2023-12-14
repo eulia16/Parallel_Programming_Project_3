@@ -4,14 +4,16 @@ package org.example;
 public final class Constants {
 
     //copper thermal constant
-    public static final double C1 = 0.55;//0.75;
+    public static final double C1 =0.9;//= 0.923;
     //silver thermal constant
-    public static final double C2 = 1.00;//1.00;
+    public static final double C2 =1.056;//= 1.145;
     //gold silver constant
-    public static final double C3 = 1.25;//1.25;
+    //worked decently with 1.305
+    public static final double C3 =1.42;//= 1.305;
+    public static final double THRESHOLD = 0.0000001;
 
 
-    public static final double S = 255; // top left corner mesh element at index [0,0] is heated at S degrees Celsius
+    public static final double S = 300; // top left corner mesh element at index [0,0] is heated at S degrees Celsius
     public static final double T = 255; // bottom right corner (index [width - 1,height - 1]) is heated at T degrees Celsius
 
 

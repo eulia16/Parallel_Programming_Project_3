@@ -8,7 +8,7 @@ public class GUI extends JPanel {
     private final static int gridSize = 10;
     //what we want
     //private final static int squareSize = 5;
-    private final static int squareSize = 15 * 4;
+    private final static int squareSize = 10 / 2 ;
 
 
     private final static int moveTextDownPixels = 25;
@@ -69,9 +69,9 @@ public class GUI extends JPanel {
 //                if(floorToDraw[i][j].getStation().getColor() == Color.BLACK)
 //                    g2.setColor(Color.WHITE);
                 g2.setColor(Color.BLACK);
-                Double temp = floorToDraw[i][j].getCurrentTemperature();
-                temp = (double) (Math.round(temp * 100) / 100);
-                g2.drawString("" + temp, x + padding + 15, y + padding + 15);
+//                Double temp = floorToDraw[i][j].getCurrentTemperature();
+//                temp = (double) (Math.round(temp * 100) / 100);
+                //g2.drawString("" + temp, x + padding + 15, y + padding + 15);
 //                g2.drawString(floorToDraw[i][j].getStation().getStationType(floorToDraw[i][j].getStation()), x + padding, y + padding + moveTextDownPixels + moveTextDownPixels);
 
 

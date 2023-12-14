@@ -10,7 +10,6 @@
       <change beforePath="$PROJECT_DIR$/src/main/java/org/example/Constants.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/example/Constants.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/org/example/GUI.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/example/GUI.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/org/example/MetalAlloy.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/example/MetalAlloy.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/example/UpdateAlloyTemperature.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/example/UpdateAlloyTemperature.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -59,7 +58,7 @@
       <workItem from="1701534770165" duration="13098000" />
       <workItem from="1701624461601" duration="7513000" />
       <workItem from="1701709237468" duration="15298000" />
-      <workItem from="1702495574736" duration="13581000" />
+      <workItem from="1702495574736" duration="21326000" />
     </task>
     <servers />
   </component>
