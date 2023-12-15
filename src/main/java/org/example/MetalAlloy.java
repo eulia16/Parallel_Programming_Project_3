@@ -1,20 +1,28 @@
 package org.example;
 
 
+import java.io.Serializable;
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 
 //Represents the alloy we will be simulating, all constants/metal resistances are held in the Constants class
-public class MetalAlloy {
+public class MetalAlloy implements Serializable{
 
-    private final LinkedHashMap<MetalType, Double> metalTypes;
-    private final Position position;
+    private MetalAlloy m;
+
+
+    public MetalAlloy(MetalAlloy m){
+        this.m = m;
+    }
+
+     //private  LinkedHashMap<MetalType, Double> metalTypes;
+    private  Position position;
     private double percentageOfGold, percentageOfSilver, percentageOfCopper;
     private double currentTemperature = -1;
 
     private ArrayList<MetalAlloy> neighbors;
 
-    private boolean isHeatedCorner=false, isEdge=false;
+    private boolean isHeatedCorner=false;
 
 
     //used to initialize a metal alloy that consists of 3 randomly assigned percentages, with some noise as well
@@ -22,12 +30,6 @@ public class MetalAlloy {
 
         this.isHeatedCorner = isHeatedCorner;
         //used to determine if it is on the outside of the rectangle
-        this.isEdge = isEdge;
-        //first calculate the noise
-
-
-
-
         //DONT DELETE******
 
         //this works perfectly with these values and
@@ -45,47 +47,16 @@ public class MetalAlloy {
 //        this.percentageOfCopper = 0.33;
 //        this.metalTypes.put(MetalType.Copper, this.percentageOfCopper);
         //************
-        this.metalTypes = new LinkedHashMap<>();
+
 
         this.percentageOfCopper =  ThreadLocalRandom.current().nextDouble(25, 34);
-        this.metalTypes.put(MetalType.Copper, this.percentageOfCopper);
 
         this.percentageOfSilver =  ThreadLocalRandom.current().nextDouble(25, 34);
-        this.metalTypes.put(MetalType.Silver, this.percentageOfSilver);
 
         this.percentageOfGold = ThreadLocalRandom.current().nextDouble(25, 34);
-        this.metalTypes.put(MetalType.Gold, this.percentageOfGold);
-
-
-
-//        int currentPercetage=0;
-//        double noise = Math.round( ThreadLocalRandom.current().nextDouble(5) * 100) / 100.0;
-//        this.metalTypes = new LinkedHashMap<>();
-//        System.out.println("Percentage of noise in metal: " + noise);
-//
-//        this.percentageOfGold = Math.round(ThreadLocalRandom.current().nextDouble(100 - noise) * 100) / 100.0;
-//        currentPercetage += this.percentageOfGold;
-//        this.metalTypes.put(MetalType.Gold, this.percentageOfGold);
-//        System.out.println("Percentage of gold in metal: " + this.percentageOfGold);
-//
-//        double remainingPercentageForSilver = Math.max(0, 100 - this.percentageOfGold - noise);
-//        this.percentageOfSilver = Math.round(ThreadLocalRandom.current().nextDouble(remainingPercentageForSilver) * 100) / 100.0;
-//        currentPercetage += this.percentageOfSilver;
-//        this.metalTypes.put(MetalType.Silver, this.percentageOfSilver);
-//        System.out.println("Percentage of silver in metal: " + this.percentageOfSilver);
-//
-//
-//        double temp =  100 - (currentPercetage + noise);
-//        this.percentageOfCopper = Math.round(temp * 100) / 100.0;
-//        this.metalTypes.put(MetalType.Copper, this.percentageOfCopper);
-//        System.out.println("Percentage of copper in metal: " + this.percentageOfCopper);
-
 
         this.position = new Position(i, j);
 
-        for(Map.Entry<MetalType, Double> s : this.metalTypes.entrySet()){
-            System.out.println("metal type: " + s.getKey() + ", percentage " + s.getValue());
-        }
 
     }
     public void setCurrentTemperature(double t){
@@ -94,10 +65,6 @@ public class MetalAlloy {
 
     public Position getPosition(){
         return this.position;
-    }
-
-    public LinkedHashMap<MetalType, Double> getLinkedHashmap(){
-        return this.metalTypes;
     }
 
     public ArrayList<Double> getArrayOfPercentagesOfMetal(){

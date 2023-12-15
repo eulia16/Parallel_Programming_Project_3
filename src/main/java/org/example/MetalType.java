@@ -1,8 +1,9 @@
 package org.example;
 
 import java.awt.Color;
+import java.io.Serializable;
 
-public enum MetalType {
+public enum MetalType implements Serializable {
 
     Copper(Constants.C1, Color.ORANGE),
     Silver(Constants.C2, Color.LIGHT_GRAY),

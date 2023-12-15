@@ -2,6 +2,10 @@ package org.example;
 
 import javax.swing.*;
 import java.awt.*;
+import java.io.*;
+import java.net.Socket;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.concurrent.*;
 
@@ -9,26 +13,40 @@ import java.util.concurrent.*;
  * Hello world!
  *
  */
-public class App 
-{
+public class App {
 
 
     //the current state of the alloy
-    public static MetalAlloy[][] wholeAlloy, prevAllow;
+    public MetalAlloy[][] wholeAlloy;
     private static double[][] previousTemperatures;
 
+    //server connections
+    private static Socket rhoConnection;
+    private static Socket piConnection;
+
+    static ObjectOutputStream objectOutputStreamPi, objectOutputStreamRho;
+    static ObjectInputStream objectInputStreamPi, objectInputStreamRho;
     //what we want
     //private static int numRows= 66 , numColumns=numRows * 4;
 
     //orig numrows = 17
-    private static int numRows= 66 , numColumns=numRows * 4;
+    private static int numRows= 17 , numColumns=numRows * 4;
 
     //the threads that will be working on the board
     private static ForkJoinPool forkJoinPool;
+
+
     //the previous state of the allow, used for calculating the temperatures
     //public static MetalAlloy[][] previousStateOfAlloy, currentStateOfAlloy;
 
-    public static void main( String[] args ) throws InterruptedException {
+
+
+    DataOutputStream sendMessagePi;
+    DataInputStream receiveMessagePi;
+    DataOutputStream sendMessageRho;
+    DataInputStream receiveMessageRho;
+
+    public void Main() throws InterruptedException, IOException, CloneNotSupportedException, ClassNotFoundException {
         /**
          *
          * This program will utilize the Fork/Join framework supplied with java, as a part of this project
@@ -42,9 +60,34 @@ public class App
          * workloads. More to come...
          */
 
+
+        //networking stuff
+
+        System.out.println("Attempting to connect to servers...");
+
+        //System.out.println("Attempting to connect to servers...");
+        rhoConnection = new Socket("moxie.cs.oswego.edu", 12345);
+        System.out.println("Connected to Moxie!");
+        piConnection = new Socket("pi.cs.oswego.edu", 12345);
+        System.out.println("Connected to Pi!");
+
+         sendMessagePi = new DataOutputStream(piConnection.getOutputStream());
+         receiveMessagePi = new DataInputStream(piConnection.getInputStream());
+         sendMessageRho = new DataOutputStream(rhoConnection.getOutputStream());
+         receiveMessageRho = new DataInputStream(rhoConnection.getInputStream());
+
+         //set up object output stream
+        objectOutputStreamPi = new ObjectOutputStream(sendMessagePi);
+        objectOutputStreamRho = new ObjectOutputStream(sendMessageRho);
+        //set up object input streams as well
+        objectInputStreamPi = new ObjectInputStream(receiveMessagePi);
+        objectInputStreamRho = new ObjectInputStream(receiveMessageRho);
+
+
         //work stealing pool to share the work among many threads
         //App.forkJoinPool =  new ForkJoinPool();
         App.forkJoinPool = ForkJoinPool.commonPool();
+
 
 
         CountDownLatch countDownLatch = new CountDownLatch(numRows * numColumns +1 +1);
@@ -52,7 +95,7 @@ public class App
         Thread.sleep(1000);
 
 
-        wholeAlloy = new MetalAlloy[numColumns][numRows];
+        this.wholeAlloy = new MetalAlloy[numColumns][numRows];
         previousTemperatures = new double[numColumns][numRows];
 
         for(int i=0; i < numColumns; ++i){
@@ -94,18 +137,22 @@ public class App
         //add the neighbors(atleast their coordinates) as a final field inside each section of the
         //alloy
 
-        setNeighbors(wholeAlloy);
+
+        //setNeighbors(wholeAlloy);
+
 
         //wait for this to be done, then move on to other cool stuff
         System.out.println("countdown latch: " + countDownLatch.getCount());
 
-        //Thread.sleep(100000);
+
+        //Thread.sleep(10000);
 
         //forkJoinPool = new ForkJoinPool();
         forkJoinPool = ForkJoinPool.commonPool();
 
 
         GUI gui = new GUI();
+        gui.setFloor(wholeAlloy);
 
 
 
@@ -122,28 +169,19 @@ public class App
 
         countDownLatch.countDown();
 
+        //other testing thuings
 
-//        for(int i=0; i<wholeAlloy.length;++i){
-//            for(int j=0; j<wholeAlloy[0].length; ++j){
-//                for(MetalAlloy m : wholeAlloy[i][j].getNeighbors()){
-//                    if(m.getPosition().getXCoord() ==0 && m.getPosition().getYCoord() ==0)
-//                        System.out.println("top left corner is neighbor");
-//                    if(m.getPosition().getXCoord() ==wholeAlloy.length-1 && m.getPosition().getYCoord() ==wholeAlloy[0].length -1)
-//                        System.out.println("bottom right corner is neighbor");
-//                }
-//            }
-//        }
-//
-//
-//        Thread.sleep(1000000000);
+
+
+
+        sentDataToRespectiveServer(Constants.PI_NUMBER, sendMessagePi, objectOutputStreamPi);
+        sentDataToRespectiveServer(Constants.RHO_NUMBER, sendMessageRho, objectOutputStreamRho);
+
+        //Thread.sleep(1000000);
+
         countDownLatch.countDown();
 
         countDownLatch.await();
-
-
-
-
-
 
         /*
         we now are inside  the main logic of the program, we need a class that implements a recursive action
@@ -163,10 +201,26 @@ public class App
 
                 //check convergence
 
-//                if(phase > 10 && converged()){
-//                    System.out.println("System has converged");
-//                    System.exit(0);
-//                }
+                if(phase > 10 && converged()){
+                    System.out.println("System has converged");
+                    System.out.println("Closing all input/output/data streams");
+                    try {
+                        objectOutputStreamPi.close();
+                        objectOutputStreamRho.close();
+                         sendMessagePi.close();
+                         receiveMessagePi.close();
+                         sendMessageRho.close();
+                         receiveMessageRho.close();
+
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
+
+                    System.exit(0);
+                }
+
+
+                //testing
 
 
 //                System.out.println("New values: " );
@@ -176,12 +230,14 @@ public class App
 //                    }
 //                }
 
-                try {
-                    Thread.sleep(500);
-                } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
-                }
+//                try {
+//                    Thread.sleep(1000);
+//                } catch (InterruptedException e) {
+//                    throw new RuntimeException(e);
+//                }
 
+
+                gui.setFloor(wholeAlloy);
                 gui.repaint();
 
 
@@ -196,7 +252,7 @@ public class App
 
         do{
 
-            performTemperatureUpdate(App.wholeAlloy);
+            performTemperatureUpdate(this.wholeAlloy);
 
             phaser.arriveAndAwaitAdvance();
         }
@@ -208,24 +264,104 @@ public class App
     }
 
 
-
-
-    private static MetalAlloy[][] performTemperatureUpdate(MetalAlloy[][] alloyToBeChanged) throws InterruptedException {
+    private  MetalAlloy[][] performTemperatureUpdate(MetalAlloy[][] alloyToBeChanged) throws InterruptedException, IOException, ClassNotFoundException {
 
         double[][] prev = fillTemperatures(alloyToBeChanged);
         previousTemperatures = prev;
 
-        UpdateAlloyTemperature updateAlloyTemperature = new UpdateAlloyTemperature(
-                alloyToBeChanged, prev, 0, alloyToBeChanged.length, 0, alloyToBeChanged[0].length);
+        //the pi server is doing 0-N, and moxie is doing N-M
+        int numberOfNeighborsWeCalculate=numColumns, start=0;
 
-        forkJoinPool.invoke(updateAlloyTemperature);
+        //first read data in
+        double[][] piData = (double[][]) objectInputStreamPi.readObject();
+        double[][] rhoData = (double[][]) objectInputStreamRho.readObject();
+//        objectOutputStreamPi.writeBoolean(true);
+//        objectOutputStreamRho.writeBoolean(true);
+
+        //add data to one whole array
+        double[][] fullNewTemperatures = new double[numColumns][numRows];
+        //for pi data
+        for(int i=0; i<(numColumns / 2) ; ++i){
+            for(int j=0; j< numRows; ++j){
+                fullNewTemperatures[i][j] = piData[i][j];
+            }
+        }
+
+        //for moxie data
+        for(int i=(numColumns / 2); i<numColumns ; ++i){
+            for(int j=0; j< numRows; ++j){
+                fullNewTemperatures[i][j] = rhoData[i][j];
+            }
+        }
+
+        //update wholeAlloy
+        for(int i=0; i<numColumns ; ++i){
+            for(int j=0; j< numRows; ++j){
+                wholeAlloy[i][j].setCurrentTemperature(fullNewTemperatures[i][j]);
+            }
+        }
 
 
         return alloyToBeChanged;
     }
 
 
-    private static void setNeighbors(MetalAlloy[][] alloy){
+    private void sentDataToRespectiveServer(int server, DataOutputStream sendData, ObjectOutputStream objectOutputStream) throws IOException, InterruptedException {
+
+
+
+        int start;
+
+        //pi will do the 0 - N computation
+        if(server == Constants.PI_NUMBER) {
+            start =0;
+        }
+        //rho will do the N - M computation
+        else {
+            start = numColumns / 2 ;
+        }
+
+
+        System.out.println(sendData.toString());
+
+        sendData.writeInt(App.numColumns);
+        sendData.flush();
+
+
+
+        sendData.writeInt(App.numRows);
+        sendData.flush();
+
+        //need to define a split so each server knows where to start their computation at
+        sendData.writeInt(start);
+        sendData.flush();
+
+        System.out.println("sending object data to servers");
+        //send the resective chunk once, and then never again
+        for(int i=0; i < numColumns; ++i) {
+            for (int j = 0; j < numRows; ++j) {
+                  objectOutputStream.writeObject(wholeAlloy[i][j]);
+            }
+        }
+        System.out.println();
+        System.out.println("sAll sent!!");
+
+
+
+//        for(int i=0; i < numColumns; ++i) {
+//            for (int j = 0; j < numRows; ++j) {
+//                System.out.println("temps: " + this.wholeAlloy[i][j].getCurrentTemperature());
+//                sendData.writeDouble(this.wholeAlloy[i][j].getCurrentTemperature());// .writeObject(prev);
+//                sendData.flush();
+//            }
+//        }
+
+
+
+    }
+
+
+    private  void setNeighbors(MetalAlloy[][] alloy){
 
         ArrayList<MetalAlloy> neighbors;
 
@@ -268,7 +404,7 @@ public class App
 
     }
 
-    public static boolean converged(){
+    public  boolean converged(){
         int numMeetsThreshold=0;
         for(int i =0; i< wholeAlloy.length; ++i){
             for(int j=0; j< wholeAlloy[0].length; ++j){
@@ -296,6 +432,14 @@ public class App
         return returnValue;
     }
 
+
+
+    public App() throws IOException {
+    }
+
+    public MetalAlloy[][] getWholeAlloy(){
+        return wholeAlloy;
+    }
 
 
 }

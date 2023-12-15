@@ -6,3 +6,17 @@ add a final field that has each section of the alloys neighbors(atleast the coor
 so when we are computing each sections new temperatures, we dont need to keep track of the
 neighbors/worry about weird indexing errors,
 
+
+
+wed dec 13
+2)left off having to change to size of each stack for a thread using this command: java -Xss4m -jar YourJarFile.jar
+ we were in the process of serilazing the data and sending it to the server using tcp(easier than udp), we have
+the most basic format for a server, we will need to handle reading in of data on both servers we use
+im aiming for everything to be done by tomorrow.
+
+//some thoughts, the only thing that is changing is the termperatires, so instead of sending the whole serialized
+//object, only send the updated termperatures in a double[][] array or something like that and then update the respective values
+//as the indeces(x and y coords) remain the same, this seems to be the best way to do this, send the serialized object
+//once, then never again as its a LOT of data.
+
+

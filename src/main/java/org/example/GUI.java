@@ -5,10 +5,12 @@ import java.awt.*;
 import java.util.Random;
 
 public class GUI extends JPanel {
+
+    private MetalAlloy[][] alloy;
     private final static int gridSize = 10;
     //what we want
     //private final static int squareSize = 5;
-    private final static int squareSize = 10 / 2 ;
+    private final static int squareSize = 10 * 2 ;
 
 
     private final static int moveTextDownPixels = 25;
@@ -27,6 +29,10 @@ public class GUI extends JPanel {
 
     }
 
+    public void setFloor(MetalAlloy[][] m){
+        this.alloy = m;
+    }
+
     @Override
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
@@ -38,7 +44,7 @@ public class GUI extends JPanel {
         Font font = new Font("Comic Sans MS", Font.BOLD, fontSize);
         g2.setFont(font);
 
-        MetalAlloy[][] floorToDraw = App.wholeAlloy;
+         MetalAlloy[][] floorToDraw = this.alloy;
         //Station[][] floorToDraw = App.bestEverFloor;
         for(int i =0; i < floorToDraw.length; ++i){
             for (int j = 0; j< floorToDraw[0].length; ++j){

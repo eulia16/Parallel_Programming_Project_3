@@ -1,8 +1,9 @@
 package org.example;
 
+import java.io.Serializable;
 import java.util.concurrent.RecursiveAction;
 
-public class UpdateAlloyTemperature extends RecursiveAction {
+public class UpdateAlloyTemperature extends RecursiveAction implements Serializable {
 
     private MetalAlloy[][] currentBoard;
     private double[][] temperatures;

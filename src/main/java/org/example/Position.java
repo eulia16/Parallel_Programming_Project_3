@@ -1,6 +1,8 @@
 package org.example;
 
-public final class Position {
+import java.io.Serializable;
+
+public final class Position implements Serializable {
     private final int i;
     private final int j;
     public Position(int i, int j){

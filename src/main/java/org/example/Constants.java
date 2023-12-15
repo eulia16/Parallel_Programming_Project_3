@@ -10,6 +10,11 @@ public final class Constants {
     //gold silver constant
     //worked decently with 1.305
     public static final double C3 =1.42;//= 1.305;
+
+    public static final int PI_NUMBER=1;
+    public static final int RHO_NUMBER=2;
+
+
     public static final double THRESHOLD = 0.0000001;
 
 
