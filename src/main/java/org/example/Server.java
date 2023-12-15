@@ -23,41 +23,42 @@ public class Server {
     private static ObjectOutputStream objectOutputStream;
     private static final int PORT = 12345;
     public static void main(String[] a) throws IOException, ClassNotFoundException {
-        forkJoinPool = ForkJoinPool.commonPool();
+
+        while(true) {
+            forkJoinPool = ForkJoinPool.commonPool();
 
 
-        connection = new ServerSocket(PORT);
+            connection = new ServerSocket(PORT);
 
 
-        //while(true){
-        System.out.println("Awaiting connections...");
-        Socket client = connection.accept();
-        System.out.println("Connected to: " + connection.getInetAddress() + connection.getLocalPort());
+            //while(true){
+            System.out.println("Awaiting connections...");
+            Socket client = connection.accept();
+            System.out.println("Connected to: " + connection.getInetAddress() + connection.getLocalPort());
 
-        DataInputStream inputStream = new DataInputStream(client.getInputStream());
-        DataOutputStream outputStream = new DataOutputStream(client.getOutputStream());
-        objectInputStream = new ObjectInputStream(inputStream);
-        objectOutputStream = new ObjectOutputStream(outputStream);
+            DataInputStream inputStream = new DataInputStream(client.getInputStream());
+            DataOutputStream outputStream = new DataOutputStream(client.getOutputStream());
+            objectInputStream = new ObjectInputStream(inputStream);
+            objectOutputStream = new ObjectOutputStream(outputStream);
 
-        numColumns = inputStream.readInt();
-        System.out.println("read integer: " + numColumns);
-        numRows = inputStream.readInt();
-        System.out.println("read integer: " + numRows);
-        whatHalfWeHave = inputStream.readInt();
-        System.out.println("read integer: " + numRows);
-        System.out.println("");
+            numColumns = inputStream.readInt();
+            System.out.println("read integer: " + numColumns);
+            numRows = inputStream.readInt();
+            System.out.println("read integer: " + numRows);
+            whatHalfWeHave = inputStream.readInt();
+            System.out.println("read integer: " + whatHalfWeHave);
+            System.out.println("");
 
-       wholeAlloy = new MetalAlloy[numColumns][numRows];
+            wholeAlloy = new MetalAlloy[numColumns][numRows];
 
-        for (int i = 0; i < numColumns; ++i) {
-            for (int j = 0; j < numRows; ++j) {
-                wholeAlloy[i][j] = (MetalAlloy) objectInputStream.readObject();
+            for (int i = 0; i < numColumns; ++i) {
+                for (int j = 0; j < numRows; ++j) {
+                    wholeAlloy[i][j] = (MetalAlloy) objectInputStream.readObject();
+                }
             }
-        }
 
 
-
-        //after reading all the data in
+            //after reading all the data in
 
 //        for (int i = 0; i < numColumns; ++i) {
 //            for (int j = 0; j < numRows; ++j) {
@@ -68,8 +69,8 @@ public class Server {
 //
 //        }
 
-        //now that we have the data, we calculate the neighbors
-        setNeighbors(wholeAlloy);
+            //now that we have the data, we calculate the neighbors
+            setNeighbors(wholeAlloy);
 
 //        for (int i = 0; i < numColumns; ++i) {
 //            for (int j = 0; j < numRows; ++j) {
@@ -80,30 +81,37 @@ public class Server {
 //
 //        }
 
-        //now for main compuation loop, we will need to send the updated temperatures to back to my computer
-        //when the calculations finish
+            //now for main compuation loop, we will need to send the updated temperatures to back to my computer
+            //when the calculations finish
 
-        final Phaser phaser = new Phaser(){
+            final Phaser phaser = new Phaser() {
 
-            //remember its essentially single threaded in here, do any otherwise unpredictable multithreaded behavior
-            //inside here (s/a changing the current floor to the previous floor and print statements etc...)
-            @Override
-            protected boolean onAdvance(int phase, int registeredParties) {
-
-
-                System.out.println("another one");
-                boolean performAnotherIteration = true;
-
-                //read in a boolean, if true, we will continue calculations,
-                //if false, we will end it(probably due to convergence etc...)
-//                try {
-//                    performAnotherIteration =  objectInputStream.readBoolean();
-//                } catch (IOException e) {
-//                    throw new RuntimeException(e);
-//                }
+                //remember its essentially single threaded in here, do any otherwise unpredictable multithreaded behavior
+                //inside here (s/a changing the current floor to the previous floor and print statements etc...)
+                @Override
+                protected boolean onAdvance(int phase, int registeredParties) {
 
 
-                //testing
+                    System.out.println("another one");
+
+                    boolean performAnotherIteration;
+
+                    // Read the boolean signal from the client
+                    System.out.println("awaiting signal from client");
+                    try {
+                        performAnotherIteration = objectInputStream.readBoolean();
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
+
+                    System.out.println("Received signal to perform another iteration: " + performAnotherIteration);
+
+                    if (!performAnotherIteration) {
+                        // If the signal is false, terminate the computation
+                        return true;
+                    }
+
+                    //testing
 
 
 //                System.out.println("New values: " );
@@ -121,38 +129,38 @@ public class Server {
 //                }
 
 
-                System.out.println("Phase/Generation: " + phase);
-                return phase >= Constants.numGenerations || registeredParties == 0;// || !performAnotherIteration;
+                    System.out.println("Phase/Generation: " + phase);
+                    return phase >= Constants.numGenerations || registeredParties == 0;// || !performAnotherIteration;
 
+                }
+            };
+
+            phaser.register();
+
+
+            do {
+
+                double[][] newTemperatures = performCalculations();
+
+                sendTemperaturesBack(newTemperatures);
+
+
+                phaser.arriveAndAwaitAdvance();
             }
-        };
-
-        phaser.register();
+            while (!phaser.isTerminated());
 
 
-        do{
+            phaser.arriveAndDeregister();
 
-            double[][] newTemperatures = performCalculations();
-
-            sendTemperaturesBack(newTemperatures);
-
-//            boolean response = objectInputStream.readBoolean();
-//            if(!response)
-//                System.exit(1);
-
-            phaser.arriveAndAwaitAdvance();
         }
-        while(!phaser.isTerminated());
-
-
-        phaser.arriveAndDeregister();
-
-
 
     }
 
     public static void sendTemperaturesBack(double[][] newTemps) throws IOException {
+        System.out.println("sending newly calculated temperatures to client");
         objectOutputStream.writeObject(newTemps);
+        objectOutputStream.flush();
+        System.out.println("Sent!");
     }
 
     public static double[][] performCalculations(){
@@ -171,9 +179,14 @@ public class Server {
             start = (numberOfNeighborsWeCalculate / 2);
 
         //split calculations per server(no need to perform redundant calculations)
-        UpdateAlloyTemperature updateAlloyTemperature = new UpdateAlloyTemperature(
-                wholeAlloy, prev, start, numberOfNeighborsWeCalculate, 0, wholeAlloy[0].length);
 
+        //correct for splitting board in half***
+//        UpdateAlloyTemperature updateAlloyTemperature = new UpdateAlloyTemperature(
+//                wholeAlloy, prev, start, numberOfNeighborsWeCalculate, 0, wholeAlloy[0].length);
+
+        //trying this*****
+        UpdateAlloyTemperature updateAlloyTemperature = new UpdateAlloyTemperature(
+                wholeAlloy, prev, 0, wholeAlloy.length, 0, wholeAlloy[0].length);
 
         forkJoinPool.invoke(updateAlloyTemperature);
 

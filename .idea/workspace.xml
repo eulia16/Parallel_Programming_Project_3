@@ -5,19 +5,11 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="a88c0af3-0b72-4eed-b1ab-3dcf8a799b9e" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/geeInfo.txt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/org/example/Main.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/org/example/Server.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/org/example/App.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/example/App.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/org/example/Constants.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/example/Constants.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/org/example/GUI.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/example/GUI.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/example/MetalAlloy.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/example/MetalAlloy.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/example/MetalType.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/example/MetalType.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/example/Position.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/example/Position.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/example/UpdateAlloyTemperature.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/example/UpdateAlloyTemperature.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/example/notes.txt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/example/notes.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/example/Server.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/example/Server.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -70,7 +62,7 @@
       <workItem from="1701624461601" duration="7513000" />
       <workItem from="1701709237468" duration="15298000" />
       <workItem from="1702495574736" duration="30636000" />
-      <workItem from="1702569811846" duration="16453000" />
+      <workItem from="1702569811846" duration="19938000" />
     </task>
     <servers />
   </component>

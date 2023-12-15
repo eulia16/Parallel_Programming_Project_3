@@ -3,6 +3,7 @@ package org.example;
 import javax.swing.*;
 import java.awt.*;
 import java.io.*;
+import java.math.BigDecimal;
 import java.net.Socket;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -30,7 +31,7 @@ public class App {
     //private static int numRows= 66 , numColumns=numRows * 4;
 
     //orig numrows = 17
-    private static int numRows= 17 , numColumns=numRows * 4;
+    private static int numRows= 66 * 1 , numColumns=numRows * 4;
 
     //the threads that will be working on the board
     private static ForkJoinPool forkJoinPool;
@@ -219,6 +220,20 @@ public class App {
                     System.exit(0);
                 }
 
+//
+//                try {
+//                    objectOutputStreamRho.writeBoolean(true);
+//                    objectOutputStreamRho.flush();
+//                } catch (IOException e) {
+//                    throw new RuntimeException(e);
+//                }
+//                try {
+//                    objectOutputStreamPi.writeBoolean(true);
+//                    objectOutputStreamRho.flush();
+//                } catch (IOException e) {
+//                    throw new RuntimeException(e);
+//                }
+
 
                 //testing
 
@@ -231,7 +246,7 @@ public class App {
 //                }
 
 //                try {
-//                    Thread.sleep(1000);
+//                    Thread.sleep(100);
 //                } catch (InterruptedException e) {
 //                    throw new RuntimeException(e);
 //                }
@@ -254,6 +269,13 @@ public class App {
 
             performTemperatureUpdate(this.wholeAlloy);
 
+
+            System.out.println("sending approval to both servers to perform another computation");
+            objectOutputStreamPi.writeBoolean(true);
+            objectOutputStreamPi.flush();
+            objectOutputStreamRho.writeBoolean(true);
+            objectOutputStreamRho.flush();
+            System.out.println("approval sent!");
             phaser.arriveAndAwaitAdvance();
         }
         while(!phaser.isTerminated());
@@ -273,26 +295,40 @@ public class App {
         int numberOfNeighborsWeCalculate=numColumns, start=0;
 
         //first read data in
+        System.out.println("attempting to read in data from both servers");
         double[][] piData = (double[][]) objectInputStreamPi.readObject();
         double[][] rhoData = (double[][]) objectInputStreamRho.readObject();
-//        objectOutputStreamPi.writeBoolean(true);
-//        objectOutputStreamRho.writeBoolean(true);
+        System.out.println("Data written!");
+
+
+
 
         //add data to one whole array
         double[][] fullNewTemperatures = new double[numColumns][numRows];
-        //for pi data
-        for(int i=0; i<(numColumns / 2) ; ++i){
+
+        for(int i=0; i<numColumns ; ++i){
             for(int j=0; j< numRows; ++j){
-                fullNewTemperatures[i][j] = piData[i][j];
+                if(piData[i][j] > rhoData[i][j])
+                    fullNewTemperatures[i][j] = piData[i][j];
+                else
+                    fullNewTemperatures[i][j] = rhoData[i][j];
             }
         }
 
-        //for moxie data
-        for(int i=(numColumns / 2); i<numColumns ; ++i){
-            for(int j=0; j< numRows; ++j){
-                fullNewTemperatures[i][j] = rhoData[i][j];
-            }
-        }
+        int constant =0;
+        //for pi data
+//        for(int i=0; i<(numColumns / 2) + constant ; ++i){
+//            for(int j=0; j< numRows; ++j){
+//                fullNewTemperatures[i][j] = piData[i][j];
+//            }
+//        }
+//
+//        //for moxie data
+//        for(int i=(numColumns / 2) - constant; i<numColumns ; ++i){
+//            for(int j=0; j< numRows; ++j){
+//                fullNewTemperatures[i][j] = rhoData[i][j];
+//            }
+//        }
 
         //update wholeAlloy
         for(int i=0; i<numColumns ; ++i){
@@ -406,16 +442,21 @@ public class App {
 
     public  boolean converged(){
         int numMeetsThreshold=0;
+        double averageTemp =0;
         for(int i =0; i< wholeAlloy.length; ++i){
             for(int j=0; j< wholeAlloy[0].length; ++j){
                 if((wholeAlloy[i][j].getCurrentTemperature() - previousTemperatures[i][j]) < Constants.THRESHOLD)
                     numMeetsThreshold++;
+                averageTemp += wholeAlloy[i][j].getCurrentTemperature();
             }
         }
         //if over 90 perfent of the metal allow is very close to the same temp, end the simulation
         if(numMeetsThreshold > (wholeAlloy.length * wholeAlloy[0].length) -1){
             return true;
         }
+//        else if(averageTemp / (numColumns * numRows) > 3000){
+//            return true;
+//        }
         else {
             return false;
         }

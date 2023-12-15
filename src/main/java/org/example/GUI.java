@@ -10,7 +10,7 @@ public class GUI extends JPanel {
     private final static int gridSize = 10;
     //what we want
     //private final static int squareSize = 5;
-    private final static int squareSize = 10 * 2 ;
+    private final static int squareSize = 10 / 2 ;
 
 
     private final static int moveTextDownPixels = 25;
